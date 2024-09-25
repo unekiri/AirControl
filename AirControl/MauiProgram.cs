@@ -15,9 +15,9 @@ namespace AirControl
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .Build();
 
-            // IConfigrationをサービスに追加
-            builder.Services.AddSingleton<MainPage>();
+            // IConfigrationをDIコンテナに追加
             builder.Services.AddSingleton<IConfiguration>(config);
+            builder.Services.AddSingleton<MainPage>();
 
             builder
                 .UseMauiApp<App>()
