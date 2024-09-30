@@ -31,7 +31,7 @@ namespace AirControl
                 await publisher.ConnectToBroker(address, port);
                 // MQTTブローカーにメッセージを送信
                 await publisher.Publish(topic);
-
+                
                 await DisplayAlert("Success", "Connected to MQTT Broker and Sent a message", "OK");
 
             }
