@@ -28,7 +28,7 @@ namespace AirControl
 
                 var publisher = new Publisher();
                 // MQTTブローカーに接続
-                await publisher.Connect(address, port);
+                await publisher.ConnectToBroker(address, port);
                 // MQTTブローカーにメッセージを送信
                 await publisher.Publish(topic);
 

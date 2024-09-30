@@ -19,7 +19,7 @@ namespace AirControl.Publish
             this.Client = factory.CreateMqttClient();
         }
 
-        public async Task Connect(string brokerAddress, int port)
+        public async Task ConnectToBroker(string brokerAddress, int port)
         {
             var options = new MqttClientOptionsBuilder()
                 .WithClientId(Guid.NewGuid().ToString())
