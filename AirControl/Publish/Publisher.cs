@@ -49,11 +49,11 @@ namespace AirControl.Publish
             }
         }
 
-        public async Task Publish(string topic)
+        public async Task Publish(string topic, string payload)
         {
             var message = new MqttApplicationMessageBuilder()
                 .WithTopic(topic)
-                .WithPayload("Hello World!")
+                .WithPayload(payload)
                 .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtMostOnce)
                 .WithRetainFlag(true)
                 .Build();

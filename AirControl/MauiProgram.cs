@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using AirControl.Subscribe;
 
 namespace AirControl
 {
@@ -18,6 +19,7 @@ namespace AirControl
             // IConfigrationをDIコンテナに追加
             builder.Services.AddSingleton<IConfiguration>(config);
             builder.Services.AddSingleton<MainPage>();
+            builder.Services.AddSingleton<ExeSubscriber>();
 
             builder
                 .UseMauiApp<App>()
@@ -28,10 +30,14 @@ namespace AirControl
                 });
 
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
+            var mauiApp =  builder.Build();
 
-            return builder.Build();
+            var exeSubscriber = mauiApp.Services.GetService<ExeSubscriber>();
+            exeSubscriber?.Run();
+
+            return mauiApp;
         }
     }
 }
