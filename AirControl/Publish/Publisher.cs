@@ -3,6 +3,7 @@ using MQTTnet.Client;
 using MQTTnet.Protocol;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,13 +32,13 @@ namespace AirControl.Publish
             {
                 try
                 {
-                    Console.WriteLine($"Attempting to connect to broker... (Attempt {retry + 1})");
+                    Debug.WriteLine($"Attempting to connect to broker... (Attempt {retry + 1})");
                     await this.Client.ConnectAsync(options, CancellationToken.None);
-                    Console.WriteLine("Connected to MQTT broker.");
+                    Debug.WriteLine("Connected to MQTT broker.");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Connection failed: {ex.Message}. Retrying in 1 second...");
+                    Debug.WriteLine($"Connection failed: {ex.Message}. Retrying in 1 second...");
                     await Task.Delay(TimeSpan.FromSeconds(1));
                 }
                 retry++;
@@ -45,15 +46,14 @@ namespace AirControl.Publish
 
             if (!this.Client.IsConnected)
             {
-                Console.WriteLine("Failed to connect to the MQTT broker after 5 attempts.");
+                Debug.WriteLine("Failed to connect to the MQTT broker after 5 attempts.");
             }
         }
-
-        public async Task Publish(string topic)
+        public async Task Publish(string topic, string payload)
         {
             var message = new MqttApplicationMessageBuilder()
                 .WithTopic(topic)
-                .WithPayload("Hello World!")
+                .WithPayload(payload)
                 .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtMostOnce)
                 .WithRetainFlag(true)
                 .Build();

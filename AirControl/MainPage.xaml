@@ -1,25 +1,83 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="AirControl.MainPage">
-
-    <ScrollView>
-        <VerticalStackLayout
-            Padding="30,0"
-            Spacing="25">
-            <Image
-                Source="aircon.png"
-                HeightRequest="185"
-                Aspect="AspectFit"
-                SemanticProperties.Description="am image of air conditioner" />
-
-            <Button
-                x:Name="ConnectionBtn"
-                Text="Connect" 
-                SemanticProperties.Hint="Connect to MqttBroker"
-                Clicked="SendMessageToMqttBroker"
-                HorizontalOptions="Center" />
-        </VerticalStackLayout>
-    </ScrollView>
+             x:Class="AirControl.MainPage"
+             Title="">
+    <Frame BorderColor="Gray" CornerRadius="20" Padding="10" HasShadow="True" BackgroundColor="Black">
+        <ScrollView>
+            <VerticalStackLayout
+                Padding="30,0"
+                Spacing="25">
+                <Frame BorderColor="Gray" CornerRadius="10" Padding="10" BackgroundColor="Black">
+                    <VerticalStackLayout Spacing="10">
+                        <HorizontalStackLayout>
+                            <Label Text="{Binding Type}" FontSize="Large" Margin="0, 0, 20, 0"/>
+                            <Label Text="{Binding Airflow}" FontSize="Large" HorizontalOptions="EndAndExpand" />
+                        </HorizontalStackLayout>
+                        <Label Text="{Binding Temperature}" FontSize="50" />
+                    </VerticalStackLayout>
+                </Frame>
+                <VerticalStackLayout Spacing="0">
+                    <Label Text="Type"/>
+                    <Picker x:Name="typePicker" SelectedItem="{Binding Type}">
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String>cool</x:String>
+                                <x:String>hot</x:String>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                    </Picker>
+                </VerticalStackLayout>
+                <VerticalStackLayout Spacing="0">
+                    <Label Text="Temperature"/>
+                    <Picker x:Name="temperaturePicker" SelectedItem="{Binding Temperature}">
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String>16℃</x:String>
+                                <x:String>17℃</x:String>
+                                <x:String>18℃</x:String>
+                                <x:String>19℃</x:String>
+                                <x:String>20℃</x:String>
+                                <x:String>21℃</x:String>
+                                <x:String>22℃</x:String>
+                                <x:String>23℃</x:String>
+                                <x:String>24℃</x:String>
+                                <x:String>25℃</x:String>
+                                <x:String>26℃</x:String>
+                                <x:String>27℃</x:String>
+                                <x:String>28℃</x:String>
+                                <x:String>29℃</x:String>
+                                <x:String>30℃</x:String>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                    </Picker>
+                </VerticalStackLayout>
+                <VerticalStackLayout Spacing="0">
+                    <Label Text="Airflow"/>
+                    <Picker x:Name="airflowPicker" SelectedItem="{Binding Airflow}">
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String>auto</x:String>
+                                <x:String>high</x:String>
+                                <x:String>low</x:String>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                    </Picker>
+                </VerticalStackLayout>
+                <Button
+                    x:Name="SelectedValueSettingBtn"
+                    Text="Send" 
+                    SemanticProperties.Hint="SelectedValueSetting"
+                    Clicked="SelectedValueSetting"
+                    />
+                <Button
+                    x:Name="TurnOffBtn"
+                    Text="Off" 
+                    SemanticProperties.Hint="TurnOff"
+                    Clicked="TurnOff"
+                    />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Frame>
 
 </ContentPage>
