@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using AirControl.Subscribe;
 
 namespace AirControl
 {
@@ -15,9 +16,11 @@ namespace AirControl
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .Build();
 
-            // IConfigrationをDIコンテナに追加
             builder.Services.AddSingleton<IConfiguration>(config);
             builder.Services.AddSingleton<MainPage>();
+            builder.Services.AddSingleton<SubscribedMessage>();
+            builder.Services.AddSingleton<Subscriber>();
+            builder.Services.AddSingleton<ExeSubscriber>();
 
             builder
                 .UseMauiApp<App>()
@@ -26,12 +29,16 @@ namespace AirControl
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
-
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
+            var mauiApp =  builder.Build();
 
-            return builder.Build();
+            // 現在の状態を表示させる
+            var exeSubscriber = mauiApp.Services.GetService<ExeSubscriber>();
+            exeSubscriber?.Run();
+
+            return mauiApp;
         }
     }
 }
