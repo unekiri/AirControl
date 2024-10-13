@@ -36,7 +36,7 @@ namespace AirControl
 
             // 現在の状態を表示させる
             var exeSubscriber = mauiApp.Services.GetService<ExeSubscriber>();
-            exeSubscriber?.Run();
+            await exeSubscriber.Run();
 
             return mauiApp;
         }
