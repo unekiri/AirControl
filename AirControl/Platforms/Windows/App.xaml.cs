@@ -21,5 +21,4 @@ namespace AirControl.WinUI
 
         protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
     }
-
 }

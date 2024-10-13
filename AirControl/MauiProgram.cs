@@ -32,13 +32,7 @@ namespace AirControl
 #if DEBUG
             builder.Logging.AddDebug();
 #endif
-            var mauiApp =  builder.Build();
-
-            // 現在の状態を表示させる
-            var exeSubscriber = mauiApp.Services.GetService<ExeSubscriber>();
-            exeSubscriber?.Run();
-
-            return mauiApp;
+            return builder.Build();
         }
     }
 }
