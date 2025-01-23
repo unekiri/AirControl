@@ -1,7 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using AirControl.Subscribe;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using AirControl.Subscribe;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace AirControl
 {
@@ -12,19 +13,15 @@ namespace AirControl
             var builder = MauiApp.CreateBuilder();
 
             // appsetting.jsonの読み込み設定
-            var assembly = Assembly.GetExecutingAssembly();
-            using var stream = assembly.GetManifestResourceStream("AirControl.appsettings.json");
-
             var config = new ConfigurationBuilder()
-                .AddJsonStream(stream)
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .Build();
 
             builder.Services.AddSingleton<IConfiguration>(config);
             builder.Services.AddTransient<MainPage>();
-            builder.Services.AddSingleton<SubscribedMessage>();
-            builder.Services.AddSingleton<Subscriber>();
-            builder.Services.AddSingleton<ExeSubscriber>();
-
+            builder.Services.AddSingleton<AtFirstExeSubscribe>();
+            builder.Services.AddSingleton<SetSubscribedValue>();
             builder
                 .UseMauiApp<App>()
                 .ConfigureFonts(fonts =>

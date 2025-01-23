@@ -65,10 +65,10 @@
                     </Picker>
                 </VerticalStackLayout>
                 <Button
-                    x:Name="SelectedValueSettingBtn"
+                    x:Name="PushSelectedValueBtn"
                     Text="Send" 
-                    SemanticProperties.Hint="SelectedValueSetting"
-                    Clicked="SelectedValueSetting"
+                    SemanticProperties.Hint="PushSelectedValue"
+                    Clicked="PushSelectedValue"
                     />
                 <Button
                     x:Name="TurnOffBtn"

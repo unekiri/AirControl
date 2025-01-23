@@ -1,22 +1,23 @@
 ﻿using AirControl.Subscribe;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Maui.Hosting;
 
 namespace AirControl
 {
     public partial class App : Application
     {
-        private readonly ExeSubscriber _exeSubscriber;
-        public App(ExeSubscriber exeSubscriber)
+        private readonly AtFirstExeSubscribe _atFirstExeSubscribe;
+        public App(AtFirstExeSubscribe atFirstExeSubscribe)
         {
             InitializeComponent();
             MainPage = new AppShell();
-            this._exeSubscriber = exeSubscriber;
+            _atFirstExeSubscribe = atFirstExeSubscribe;
         }
 
         protected override async void OnStart()
         {
-            // 現在の状態を表示させる
-            await this._exeSubscriber?.Run();
+            // 前回電源off時のエアコンの状態を表示する
+            await this._atFirstExeSubscribe.Run();
         }
     }
 }

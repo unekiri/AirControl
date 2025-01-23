@@ -10,16 +10,18 @@ using System.Threading.Tasks;
 
 namespace AirControl.Publish
 {
-    public class Publisher
+    // メッセージ発行クラス
+    class Publisher
     {
-        public IMqttClient Client { get; private set; }
+        private readonly IMqttClient _Client;
 
         public Publisher()
         {
             var factory = new MqttFactory();
-            this.Client = factory.CreateMqttClient();
+            this._Client = factory.CreateMqttClient();
         }
 
+        // MQTTブローカーに接続する
         public async Task ConnectToBroker(string brokerAddress, int port)
         {
             var options = new MqttClientOptionsBuilder()
@@ -28,12 +30,12 @@ namespace AirControl.Publish
                 .Build();
             var retry = 0;
 
-            while (!this.Client.IsConnected && retry < 5)
+            while (!this._Client.IsConnected && retry < 5)
             {
                 try
                 {
                     Debug.WriteLine($"Attempting to connect to broker... (Attempt {retry + 1})");
-                    await this.Client.ConnectAsync(options, CancellationToken.None);
+                    await this._Client.ConnectAsync(options, CancellationToken.None);
                     Debug.WriteLine("Connected to MQTT broker.");
                 }
                 catch (Exception ex)
@@ -44,12 +46,14 @@ namespace AirControl.Publish
                 retry++;
             }
 
-            if (!this.Client.IsConnected)
+            if (!this._Client.IsConnected)
             {
                 Debug.WriteLine("Failed to connect to the MQTT broker after 5 attempts.");
             }
         }
-        public async Task Publish(string topic, string payload)
+
+        // MQTTブローカーのトピックに発行する
+        public async Task ExePublish(string topic, string payload)
         {
             var message = new MqttApplicationMessageBuilder()
                 .WithTopic(topic)
@@ -58,7 +62,7 @@ namespace AirControl.Publish
                 .WithRetainFlag(true)
                 .Build();
 
-            await this.Client.PublishAsync(message, CancellationToken.None);
+            await this._Client.PublishAsync(message, CancellationToken.None);
         }
     }
 }

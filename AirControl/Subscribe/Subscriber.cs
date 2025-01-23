@@ -10,19 +10,21 @@ using System.Text.Json;
 
 namespace AirControl.Subscribe
 {
+    // メッセージ購読クラス
     public class Subscriber
     {
         private readonly IMqttClient _client;
-        private readonly SubscribedMessage _subscribedMessage;
-        public TaskCompletionSource<bool> MessageReceivedCompletionSource { get; private set; }
+        private readonly SetSubscribedValue _setSubscribedValue;
+        public  TaskCompletionSource<bool> MessageReceivedCompletionSource { get; private set; }
 
-        public Subscriber(SubscribedMessage subscribedMessage)
+        public Subscriber(SetSubscribedValue setSubscribedValue)
         {
             var factory = new MqttFactory();
             this._client = factory.CreateMqttClient();
-            _subscribedMessage = subscribedMessage;
+            this._setSubscribedValue = setSubscribedValue;
         }
 
+        // MQTTブローカーに接続する
         public async Task ConnectToBroker(string brokerAddress, int port)
         {
             var options = new MqttClientOptionsBuilder()
@@ -35,11 +37,11 @@ namespace AirControl.Subscribe
             this._client.ApplicationMessageReceivedAsync += e =>
             {
                 var message = Encoding.UTF8.GetString(e.ApplicationMessage.PayloadSegment);
-                var data = JsonSerializer.Deserialize<SubscribedMessage>(message);
+                var data = JsonSerializer.Deserialize<SetSubscribedValue>(message);
 
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    this._subscribedMessage.UpdateUI(data.Type, $"{data.Temperature}", data.Airflow);
+                    this._setSubscribedValue.UpdateView(data.Type, $"{data.Temperature}", data.Airflow);
                 });
 
                 // メッセージを受信したので TaskCompletionSource を完了させる
@@ -69,6 +71,7 @@ namespace AirControl.Subscribe
             }
         }
 
+        // MQTTブローカーのトピックから購読する
         public async Task SubscribeAndWaitForMessage(string topic)
         {
             try
@@ -88,31 +91,6 @@ namespace AirControl.Subscribe
             {
                 Debug.WriteLine($"Error subscribing to topic {topic}: {e.Message}");
             }
-        }
-    }
-
-    public class ExeSubscriber
-    {
-        public readonly IConfiguration _configuration;
-        public readonly Subscriber _subscriber;
-
-        public ExeSubscriber(IConfiguration configuration, Subscriber subscriber)
-        {
-            this._configuration = configuration;
-            this._subscriber = subscriber;
-        }
-
-        public async Task Run()
-        {
-            var address = this._configuration["MqttSettings:Address"];
-            var port = int.Parse(this._configuration["MqttSettings:Port"]);
-            var topic = this._configuration["MqttSettings:Topic"];
-
-            // MQTTブローカーに接続
-            await this._subscriber.ConnectToBroker(address, port);
-
-            // トピックの購読を行い、メッセージが受信されるまで待機
-            await this._subscriber.SubscribeAndWaitForMessage(topic);
         }
     }
 }
