@@ -1,5 +1,6 @@
-﻿using AirControl.Publish;
-using AirControl.Subscribe;
+﻿using AirControl.Helpers;
+using AirControl.Services;
+using AirControl.Services.Subscribe;
 using Microsoft.Extensions.Configuration;
 using System.Text.Json;
 
@@ -8,10 +9,12 @@ namespace AirControl
     public partial class MainPage : ContentPage
     {
         private readonly IConfiguration _configuration;
-        public MainPage(IConfiguration configuration, SetSubscribedValue setSubscribedValue)
+        private readonly IConnectionHelper _connectionHelper;
+        public MainPage(IConfiguration configuration, IConnectionHelper connectionHelper, SetSubscribedValue setSubscribedValue)
         {
             InitializeComponent();
-            this._configuration = configuration;
+            _configuration = configuration;
+            _connectionHelper = connectionHelper;
             this.BindingContext = setSubscribedValue;
         }
 
@@ -36,11 +39,11 @@ namespace AirControl
                 var jsonPayload = JsonSerializer.Serialize(payload);
                 await ConnectToBrokerAndExePublish(jsonPayload);
 
-                await DisplayAlert("Success", "Completed the configuration", "OK");
+                await DisplayAlert("Success", "設定を切替ました。", "OK");
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", "Failed to connect or published a message to MQTT Broker while setting: " + ex.Message, "OK");
+                await DisplayAlert("Error", "設定の切替ができませんでした。: " + ex.Message, "OK");
 
                 Console.WriteLine(ex.ToString());
             }
@@ -48,11 +51,11 @@ namespace AirControl
 
         private async Task ConnectToBrokerAndExePublish(dynamic jsonPayload)
         {
-            var address = this._configuration["MqttSettings:Address"];
-            var port = int.Parse(this._configuration["MqttSettings:Port"]);
-            var topic = this._configuration["MqttSettings:Topic"];
+            var address = _configuration["MqttSettings:Address"];
+            var port = int.Parse(_configuration["MqttSettings:Port"]);
+            var topic = _configuration["MqttSettings:Topic"];
 
-            var publisher = new Publisher();
+            var publisher = new Publisher(_connectionHelper);
             // MQTTブローカーに接続
             await publisher.ConnectToBroker(address, port);
             // MQTTブローカーにメッセージを送信
@@ -69,7 +72,7 @@ namespace AirControl
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", "Failed to connect or published a message to MQTT Broker while turning off: " + ex.Message, "OK");
+                await DisplayAlert("Error", "正常にシャットダウンできませんでした。: " + ex.Message, "OK");
 
                 Console.WriteLine(ex.ToString());
             }

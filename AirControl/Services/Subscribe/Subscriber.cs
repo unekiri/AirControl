@@ -7,21 +7,24 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Text.Json;
+using AirControl.Helpers;
 
-namespace AirControl.Subscribe
+namespace AirControl.Services.Subscribe
 {
     // メッセージ購読クラス
     public class Subscriber
     {
         private readonly IMqttClient _client;
+        private readonly IConnectionHelper _connectionHelper;
         private readonly SetSubscribedValue _setSubscribedValue;
-        public  TaskCompletionSource<bool> MessageReceivedCompletionSource { get; private set; }
+        public TaskCompletionSource<bool> MessageReceivedCompletionSource { get; private set; }
 
-        public Subscriber(SetSubscribedValue setSubscribedValue)
+        public Subscriber(IConnectionHelper connectionHelper, SetSubscribedValue setSubscribedValue)
         {
             var factory = new MqttFactory();
-            this._client = factory.CreateMqttClient();
-            this._setSubscribedValue = setSubscribedValue;
+            _client = factory.CreateMqttClient();
+            _connectionHelper = connectionHelper;
+            _setSubscribedValue = setSubscribedValue;
         }
 
         // MQTTブローカーに接続する
@@ -34,14 +37,14 @@ namespace AirControl.Subscribe
             var retry = 0;
 
             // メッセージ受信ハンドラ
-            this._client.ApplicationMessageReceivedAsync += e =>
+            _client.ApplicationMessageReceivedAsync += e =>
             {
                 var message = Encoding.UTF8.GetString(e.ApplicationMessage.PayloadSegment);
                 var data = JsonSerializer.Deserialize<SetSubscribedValue>(message);
 
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    this._setSubscribedValue.UpdateView(data.Type, $"{data.Temperature}", data.Airflow);
+                    _setSubscribedValue.UpdateView(data.Type, $"{data.Temperature}", data.Airflow);
                 });
 
                 // メッセージを受信したので TaskCompletionSource を完了させる
@@ -49,26 +52,7 @@ namespace AirControl.Subscribe
                 return Task.CompletedTask;
             };
 
-            while (!this._client.IsConnected && retry < 5)
-            {
-                try
-                {
-                    Debug.WriteLine($"Attempting to connect to broker... (Attempt {retry + 1})");
-                    await this._client.ConnectAsync(options, CancellationToken.None);
-                    Debug.WriteLine("Connected to MQTT broker.");
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Connection failed: {ex.Message}. Retrying in 1 second...");
-                    await Task.Delay(TimeSpan.FromSeconds(1));
-                }
-                retry++;
-            }
-
-            if (!this._client.IsConnected)
-            {
-                Debug.WriteLine("Failed to connect to the MQTT broker after 5 attempts.");
-            }
+            await _connectionHelper.ConnectWithRetryAsync(_client, options);
         }
 
         // MQTTブローカーのトピックから購読する
@@ -77,7 +61,7 @@ namespace AirControl.Subscribe
             try
             {
                 // トピックにサブスクライブ
-                await this._client.SubscribeAsync(new MqttTopicFilterBuilder()
+                await _client.SubscribeAsync(new MqttTopicFilterBuilder()
                     .WithTopic(topic)
                     .Build());
 
@@ -89,7 +73,7 @@ namespace AirControl.Subscribe
             }
             catch (Exception e)
             {
-                Debug.WriteLine($"Error subscribing to topic {topic}: {e.Message}");
+                Debug.WriteLine($"メッセージを受信できませんでした。 {topic}: {e.Message}");
             }
         }
     }

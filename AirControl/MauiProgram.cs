@@ -1,4 +1,5 @@
-﻿using AirControl.Subscribe;
+﻿using AirControl.Helpers;
+using AirControl.Services.Subscribe;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
@@ -19,6 +20,7 @@ namespace AirControl
                 .Build();
 
             builder.Services.AddSingleton<IConfiguration>(config);
+            builder.Services.AddSingleton<IConnectionHelper, MqttConnectionHelper>();
             builder.Services.AddTransient<MainPage>();
             builder.Services.AddSingleton<AtFirstExeSubscribe>();
             builder.Services.AddSingleton<SetSubscribedValue>();

@@ -1,4 +1,4 @@
-﻿using AirControl.Subscribe;
+﻿using AirControl.Services.Subscribe;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Maui.Hosting;
 
