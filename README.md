@@ -1,3 +1,4 @@
 # AirControl
-![image](https://github.com/user-attachments/assets/9c3049dd-e751-4860-b4f8-b5f14884e1cb)
+![image](https://github.com/user-attachments/assets/36a7fcd6-0d25-4539-bcdc-167c6942b3a7)
+
 
